@@ -1,0 +1,18 @@
+---
+# Configure Keystone
+- apt: name=keystone state=present
+- apt: name=python-keystoneclient state=present
+
+- mysql_db: name=keystone state=present
+- mysql_user: name=keystone host={{ item }} password={{ KEYSTONE_DBPASS }} priv=keystone.*:ALL state=present
+  with_items:
+    - localhost
+    - "%"
+  notify: keystone db_sync
+
+- name: ensure sqlite keystone database is deleted
+  action: file dest=/var/lib/keystone/keystone.db state=absent
+
+- name: Configure keystone
+  template: src=keystone.conf.j2 dest=/etc/keystone/keystone.conf
+  notify: restart keystone

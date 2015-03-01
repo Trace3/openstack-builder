@@ -1,0 +1,8 @@
+---
+# Install and configure MQ
+
+- name: Install MQ 
+  apt: name=rabbitmq-server state=present
+
+# Set rabbitmq guest pw
+- rabbitmq_user: user=guest password={{ RABBIT_PASS }} force=yes

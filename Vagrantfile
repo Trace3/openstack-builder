@@ -11,7 +11,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box ="ubuntu/trusty64"
 
   config.vm.provider "vmware_fusion" do |v, override|
-    override.vm.box = "slowe/ubuntu-trusty-x64"
+    #override.vm.box = "slowe/ubuntu-trusty-x64"
+    override.vm.box = "rbenigno/trusty64"
   end
 
   # Uncomment to disable synced folder.

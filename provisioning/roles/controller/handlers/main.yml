@@ -1,4 +1,10 @@
 ---
 
 - name: restart mysql
-  service: name=mysql state=restarted
+  action: service name=mysql state=restarted
+
+- name: restart keystone
+  service: name=keystone state=restarted
+
+- name: keystone db_sync
+  command: /bin/sh -c "keystone-manage db_sync" keystone

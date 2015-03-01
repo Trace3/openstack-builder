@@ -1,14 +1,7 @@
 ---
 
-# Include OpenStack repo, then update
-- name: "Add OpenStack Rep"
-  copy: dest=/etc/apt/sources.list.d/cloudarchive-juno.list content='deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main\n'
-
 - name: Update apt
   apt: update_cache=yes
-
-- name: Install ubuntu-cloud-keyring 
-  apt: name=ubuntu-cloud-keyring state=present
 
 # Upgrade all packages and reboot
 # - name: Upgrade Packages
