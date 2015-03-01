@@ -3,21 +3,61 @@
 - apt: name=keystone state=present
 - apt: name=python-keystoneclient state=present
 
-- mysql_db: name=keystone state=present
-- mysql_user: name=keystone host={{ item }} password={{ KEYSTONE_DBPASS }} priv=keystone.*:ALL state=present
-  with_items:
-    - localhost
-    - "%"
-  notify: keystone db_sync
-
 - name: ensure sqlite keystone database is deleted
   action: file dest=/var/lib/keystone/keystone.db state=absent
 
 - name: Configure keystone
   template: src=keystone.conf.j2 dest=/etc/keystone/keystone.conf
-  notify: restart keystone
+  register: keystone_cfg
+
+- mysql_db: name=keystone state=present
+- mysql_user: name=keystone host={{ item }} password={{ KEYSTONE_DBPASS }} priv=keystone.*:ALL state=present
+  with_items:
+    - localhost
+    - "%"
+  register: keystonedb_create
+
+- name: keystone db_sync
+  command: /bin/sh -c "keystone-manage db_sync" keystone
+  when: keystonedb_create.changed
+
+- name: restart keystone
+  service: name=keystone state=restarted
+  when: keystone_cfg.changed
+
+- name: pause after keystone restart
+  pause: seconds=5
+  when: keystone_cfg.changed
 
  # Hourly crontab job to delete expired tokens
 - name: "keystone token flush cron"
   cron: name="keystone token flush" special_time="hourly"
         user="keystone" job="/usr/bin/keystone-manage token_flush >> /var/log/keystone/keystone-tokenflush.log 2>&1"
+
+# Create a admin tenant and user
+- keystone_user: tenant=admin tenant_description="Admin Tenant" 
+                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+- keystone_user: user=admin tenant=admin password={{ ADMIN_PASS }}
+                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+- keystone_user: role=admin user=admin tenant=admin
+                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+
+# Create a service tenant
+- keystone_user: tenant=service tenant_description="Service Tenant" 
+                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+
+# Create a demo tenant and user
+- keystone_user: tenant=demo tenant_description="Demo Tenant" 
+                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+- keystone_user: user=demo tenant=demo password={{ DEMO_PASS }}
+                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+- keystone_user: role=admin user=demo tenant=demo
+                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+
+# Create service entity and API endpoint
+
+- name: check that keystone service is created
+  shell: "keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} service-get keystone  2>&1"
+  register: keystone_service
+  changed_when: ("No service" in keystone_service.stdout)
+  failed_when: keystone_service.rc != 0 and ('True' not in keystone_service.stdout or "No service" not in keystone_service.stdout)

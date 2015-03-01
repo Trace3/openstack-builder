@@ -9,7 +9,7 @@
 
 - name: Configure mysql
   template: src=my.cnf.j2 dest=/etc/mysql/my.cnf
-  notify: restart mysql
+  register: mysql_cfg
 
 # 'localhost' needs to be the last item for idempotency, see
 - name: update mysql root password for all root accounts
@@ -34,3 +34,7 @@
 
 - name: ensure there is no test database
   mysql_db: name=test state=absent
+
+- name: restart mysql
+  service: name=mysql state=restarted
+  when: mysql_cfg.changed

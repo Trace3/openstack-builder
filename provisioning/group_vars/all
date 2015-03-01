@@ -8,7 +8,7 @@ ntp_servers: [ "0.us.pool.ntp.org", "1.us.pool.ntp.org", "2.us.pool.ntp.org" ]
 root_db_password: 12481eafe7341becfdb2
 RABBIT_PASS: 12481eafe7341becfdb2
 KEYSTONE_DBPASS: 12481eafe7341becfdb2
-DEMO_PASS: 12481eafe7341becfdb2
+DEMO_PASS: labstack
 ADMIN_PASS: 12481eafe7341becfdb2
 GLANCE_DBPASS: 12481eafe7341becfdb2
 GLANCE_PASS: 12481eafe7341becfdb2
@@ -27,3 +27,6 @@ TROVE_DBPASS: 12481eafe7341becfdb2
 TROVE_PASS: 12481eafe7341becfdb2
 
 keystone_admin_token: 12481eafe7341becfdb2
+
+# OpenStack Connection
+keystone_endpoint: http://controller:35357/v2.0
