@@ -1,0 +1,12 @@
+---
+
+# Apply common configuration to all hosts
+- hosts: all
+  sudo: true
+  roles:
+  - common
+
+- hosts: controller
+  sudo: true
+  roles:
+  - controller

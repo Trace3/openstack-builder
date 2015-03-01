@@ -1,0 +1,7 @@
+---
+- name: Upgrades and Dist-Upgrades servers
+  hosts: all
+  sudo: yes
+
+  roles:
+    - upgrade

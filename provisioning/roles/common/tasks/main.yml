@@ -1,0 +1,35 @@
+---
+# This role contains common plays that will run on all nodes.
+
+- name: Update APT cache
+  apt: update_cache=yes cache_valid_time=86400
+
+# Install and Configure NTP
+- name: Install ntp 
+  apt: name=ntp state=present
+  tags: ntp
+
+- name: Configure ntp file
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  tags: ntp
+  notify: restart ntp
+
+- name: Start the ntp service
+  service: name=ntp state=started enabled=yes
+  tags: ntp
+
+# Populate hosts file
+- name: "Build hosts file from ansible inventory"
+  lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" state=present
+  when: hostvars[item].ansible_default_ipv4.address is defined
+  with_items: groups['all']
+
+# Create user accounts
+- name: "Add user accounts"
+  user: name=rbenigno shell=/bin/bash state=present
+
+- name: "Add authorized_key for users"
+  authorized_key: user=rbenigno key="{{ lookup('file', '~/.ssh/id_rsa_dev.pub') }}"
+
+- name: "Grant sudo rights to users"
+  copy: dest=/etc/sudoers.d/rbenigno content='rbenigno ALL=(ALL) NOPASSWD:ALL\n' mode=440 validate='visudo -cf %s'

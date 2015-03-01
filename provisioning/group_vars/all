@@ -1,0 +1,27 @@
+---
+# file: group_vars/all
+
+ntp_servers: [ "0.us.pool.ntp.org", "1.us.pool.ntp.org", "2.us.pool.ntp.org" ]
+
+# OpenStack Passwords
+
+root_db_password: 12481eafe7341becfdb2
+RABBIT_PASS: 12481eafe7341becfdb2
+KEYSTONE_DBPASS: 12481eafe7341becfdb2
+DEMO_PASS: 12481eafe7341becfdb2
+ADMIN_PASS: 12481eafe7341becfdb2
+GLANCE_DBPASS: 12481eafe7341becfdb2
+GLANCE_PASS: 12481eafe7341becfdb2
+NOVA_DBPASS: 12481eafe7341becfdb2
+NOVA_PASS: 12481eafe7341becfdb2
+DASH_DBPASS: 12481eafe7341becfdb2
+CINDER_DBPASS: 12481eafe7341becfdb2
+CINDER_PASS: 12481eafe7341becfdb2
+NEUTRON_DBPASS: 12481eafe7341becfdb2
+NEUTRON_PASS: 12481eafe7341becfdb2
+HEAT_DBPASS: 12481eafe7341becfdb2
+HEAT_PASS: 12481eafe7341becfdb2
+CEILOMETER_DBPASS: 12481eafe7341becfdb2
+CEILOMETER_PASS: 12481eafe7341becfdb2
+TROVE_DBPASS: 12481eafe7341becfdb2
+TROVE_PASS: 12481eafe7341becfdb2
