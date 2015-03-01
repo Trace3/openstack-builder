@@ -16,3 +16,8 @@
 - name: Configure keystone
   template: src=keystone.conf.j2 dest=/etc/keystone/keystone.conf
   notify: restart keystone
+
+ # Hourly crontab job to delete expired tokens
+- name: "keystone token flush cron"
+  cron: name="keystone token flush" special_time="hourly"
+        user="keystone" job="/usr/bin/keystone-manage token_flush >> /var/log/keystone/keystone-tokenflush.log 2>&1"
