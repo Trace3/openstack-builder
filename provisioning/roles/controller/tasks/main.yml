@@ -12,30 +12,35 @@
   template: src=my.cnf.j2 dest=/etc/mysql/my.cnf
   notify: restart mysql
 
-- name: Install MQ 
-  apt: name=rabbitmq-server state=present
-
-- name: update mysql root password for all root accounts
-  mysql_user: name=root host=localhost password={{ root_db_password }}
-
 # 'localhost' needs to be the last item for idempotency, see
-# http://ansible.cc/docs/modules.html#mysql-user
 - name: update mysql root password for all root accounts
-  mysql_user: name=root host=$item password={{ root_db_password }}
+  mysql_user: name=root host={{ item }} password={{ root_db_password }}
   with_items:
-    - $ansible_hostname
+    - "{{ ansible_hostname }}"
     - 127.0.0.1
     - ::1
     - localhost
 
+# .my.cnf needs to dropped in after the mysql password is changed
 - name: copy .my.cnf file with root password credentials
   template: src=user_my.cnf.j2 dest=/root/.my.cnf mode=600
 
-- name: ensure anonymous users are not in the database
-  mysql_user: name='' host=$item state=absent
+- name: ensure there are no anonymous users in the database
+  mysql_user: name='' host={{ item }} state=absent
   with_items:
+    - "{{ ansible_hostname }}"
+    - 127.0.0.1
+    - ::1
     - localhost
-    - $inventory_hostname
 
-- name: remove the test database
+- name: ensure there is no test database
   mysql_db: name=test state=absent
+
+# Install and configure MQ
+
+- name: Install MQ 
+  apt: name=rabbitmq-server state=present
+
+# Set rabbitmq guest pw
+- rabbitmq_user: user=guest password={{ RABBIT_PASS }} force=yes
+
