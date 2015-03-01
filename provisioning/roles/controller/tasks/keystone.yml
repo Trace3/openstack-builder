@@ -58,6 +58,10 @@
 
 - name: check that keystone service is created
   shell: "keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} service-get keystone  2>&1"
-  register: keystone_service
-  changed_when: ("No service" in keystone_service.stdout)
-  failed_when: keystone_service.rc != 0 and ('True' not in keystone_service.stdout or "No service" not in keystone_service.stdout)
+  register: check_keystone_service
+  changed_when: ("No service" in check_keystone_service.stdout)
+  failed_when: check_keystone_service.rc != 0 and not ("No service" in check_keystone_service.stdout)
+
+- name: create keystone service created
+  command: keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} service-create --name keystone --type identity --description "OpenStack Identity"
+  when: check_keystone_service.changed
