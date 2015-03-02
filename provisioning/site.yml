@@ -6,6 +6,7 @@
   roles:
   - common
 
+# Configure OpenStack controller
 - hosts: controller
   sudo: true
   roles:

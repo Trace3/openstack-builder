@@ -51,17 +51,40 @@
                  endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
 - keystone_user: user=demo tenant=demo password={{ DEMO_PASS }}
                  endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
-- keystone_user: role=admin user=demo tenant=demo
-                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
 
-# Create service entity and API endpoint
+# Create service entity
 
-- name: check that keystone service is created
+- name: check for keystone service entity
   shell: "keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} service-get keystone  2>&1"
   register: check_keystone_service
   changed_when: ("No service" in check_keystone_service.stdout)
   failed_when: check_keystone_service.rc != 0 and not ("No service" in check_keystone_service.stdout)
 
-- name: create keystone service created
+- name: create keystone service entity
   command: keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} service-create --name keystone --type identity --description "OpenStack Identity"
   when: check_keystone_service.changed
+
+# Create API endpoints
+
+- name: check for API endpoints
+  shell: "keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} endpoint-list  2>&1"
+  register: check_api_endpoints
+  changed_when: check_api_endpoints.stdout == ""
+
+# Need the service entity ID when creating the API endpoint
+- name: get service entity identity id
+  shell: "keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} service-list | awk '/ identity / {print $2}'"
+  register: entity_id
+  ignore_errors: True
+  when: check_api_endpoints.changed
+
+- name: create API endpoints
+  shell: >
+    keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} endpoint-create
+    --service-id {{ entity_id.stdout }}
+    --publicurl http://controller:5000/v2.0
+    --internalurl http://controller:5000/v2.0
+    --adminurl http://controller:35357/v2.0
+    --region regionOne
+  when: check_api_endpoints.changed
+  

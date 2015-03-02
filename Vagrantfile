@@ -15,7 +15,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     override.vm.box = "rbenigno/trusty64"
   end
 
-  # Uncomment to disable synced folder.
+  # Disable synced folders for quicker vagrant up
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.define "controller" do |node|
