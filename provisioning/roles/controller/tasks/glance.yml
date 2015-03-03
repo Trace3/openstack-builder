@@ -8,7 +8,7 @@
     - "%"
   register: glancedb
 
-# Create glance user and assign to admin role (docs do not specific the user tenant, ansible module requires one)
+# Create glance user and assign to admin role (docs do not specify the user tenant, ansible module requires one)
 - keystone_user: user=glance password={{ GLANCE_PASS }} tenant=service
                  endpoint={{ os_endpoint }} token={{ os_admin_token }}
 

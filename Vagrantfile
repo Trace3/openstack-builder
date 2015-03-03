@@ -18,6 +18,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Disable synced folders for quicker vagrant up
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
+  # Populate hosts file
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = false
+  config.hostmanager.ignore_private_ip = true
+  config.hostmanager.include_offline = false
+
+  # Define VMs
   config.vm.define "controller" do |node|
     node.vm.hostname = "controller"
     node.vm.provider "vmware_fusion" do |v|
@@ -40,6 +47,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node.vm.provider "vmware_fusion" do |v|
       v.vmx["numvcpus"] = "1"
       v.vmx["memsize"] = "1024"
+      v.vmx["vhv.enable"] = "TRUE"
     end
     node.vm.network "private_network", ip: "10.199.199.31"
   end

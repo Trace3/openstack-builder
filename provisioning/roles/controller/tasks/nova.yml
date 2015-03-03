@@ -1,0 +1,87 @@
+---
+# Configure Nova
+# Install packages
+- apt: name={{ item }} state=present
+  with_items:
+    - nova-api
+    - nova-cert
+    - nova-conductor
+    - nova-consoleauth
+    - nova-novncproxy
+    - nova-scheduler
+    - python-novaclient
+
+- mysql_db: name=nova state=present
+  register: nova_db
+
+- mysql_user: name=nova host={{ item }} password={{ NOVA_DBPASS }} priv=nova.*:ALL state=present
+  with_items:
+    - localhost
+    - "%"
+  register: mysql_login
+
+- name: nova db_sync
+  command: /bin/sh -c "nova-manage db sync" nova
+  when: nova_db.changed
+
+# Create nova user and assign to admin role (docs do not specify the user tenant, ansible module requires one)
+- keystone_user: user=nova password={{ NOVA_PASS }} tenant=service
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
+
+- keystone_user: role=admin user=nova tenant=service
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
+
+# Create the nova service entity
+
+- name: check for nova service entity
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-get nova  2>&1"
+  register: check_nova_service
+  changed_when: ("No service" in check_nova_service.stdout)
+  failed_when: check_nova_service.rc != 0 and not ("No service" in check_nova_service.stdout)
+
+- name: create nova service entity
+  command: keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-create --name nova --type compute --description "OpenStack Compute"
+  when: check_nova_service.changed
+
+# Create the Compute Service API endpoints
+
+- name: check for nova API endpoint
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-list  2>&1 | grep '8774'"
+  register: check_nova_endpoints
+  failed_when: check_nova_endpoints.rc != 0 and check_nova_endpoints.stdout != ""
+  changed_when: check_nova_endpoints.stdout == ""
+
+# Need the service entity ID when creating the API endpoint
+- name: get the nova service entity id
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-list | awk '/ compute / {print $2}'"
+  register: nova_service_id
+  ignore_errors: True
+  when: check_nova_endpoints.changed
+
+- name: create API endpoints
+  shell: >
+    keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-create
+    --service-id {{ nova_service_id.stdout }}
+    --publicurl http://controller:8774/v2/%\(tenant_id\)s
+    --internalurl http://controller:8774/v2/%\(tenant_id\)s
+    --adminurl http://controller:8774/v2/%\(tenant_id\)s
+    --region regionOne
+  when: check_nova_endpoints.changed
+
+# Update configuration file
+- template: src=nova.conf.j2 dest=/etc/nova/nova.conf
+  register: nova_cfg
+
+- name: ensure nova sqlite database is deleted
+  file: dest=/var/lib/nova/nova.sqlite state=absent
+
+- name: restart nova services
+  service: name={{ item }} state=restarted
+  when: nova_cfg.changed or nova_db.changed
+  with_items:
+    - nova-api
+    - nova-cert
+    - nova-consoleauth
+    - nova-scheduler
+    - nova-conductor
+    - nova-novncproxy

@@ -11,3 +11,9 @@
   sudo: true
   roles:
   - controller
+
+# Configure OpenStack compute nodes
+- hosts: compute
+  sudo: true
+  roles:
+  - compute

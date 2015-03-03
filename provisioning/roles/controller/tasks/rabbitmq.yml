@@ -5,4 +5,4 @@
   apt: name=rabbitmq-server state=present
 
 # Set rabbitmq guest pw
-- rabbitmq_user: user=guest password={{ RABBIT_PASS }} force=yes
+- rabbitmq_user: user=guest password={{ RABBIT_PASS }} force=yes configure_priv=".*" write_priv=".*" read_priv=".*"

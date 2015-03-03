@@ -13,7 +13,7 @@ Status
 - [x] Basic environment
 - [x] Identity Service
 - [x] Image Service
-- [ ] Compute Service
+- [x] Compute Service
 - [ ] Networking Component
 - [ ] Dashboard
 - [ ] Block Storage

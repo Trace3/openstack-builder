@@ -11,11 +11,13 @@
   register: keystone_cfg
 
 - mysql_db: name=keystone state=present
+  register: keystonedb_create
+
 - mysql_user: name=keystone host={{ item }} password={{ KEYSTONE_DBPASS }} priv=keystone.*:ALL state=present
   with_items:
     - localhost
     - "%"
-  register: keystonedb_create
+  register: mysql_login
 
 - name: keystone db_sync
   command: /bin/sh -c "keystone-manage db_sync" keystone

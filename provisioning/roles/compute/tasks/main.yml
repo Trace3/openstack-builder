@@ -1,0 +1,19 @@
+---
+
+# Install packages
+- apt: name={{ item }} state=present
+  with_items:
+    - nova-compute
+    - sysfsutils
+
+# Update configuration file
+- template: src=nova.conf.j2 dest=/etc/nova/nova.conf
+  register: nova_cfg
+
+- name: restart nova services
+  service: name={{ item }} state=restarted
+  when: nova_cfg.changed
+
+# Remove default sqlite db
+- name: ensure nova sqlite database is deleted
+  file: dest=/var/lib/nova/nova.sqlite state=absent
