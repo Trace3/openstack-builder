@@ -1,0 +1,78 @@
+---
+# Configure Glance
+
+- mysql_db: name=glance state=present
+- mysql_user: name=glance host={{ item }} password={{ GLANCE_DBPASS }} priv=glance.*:ALL state=present
+  with_items:
+    - localhost
+    - "%"
+  register: glancedb
+
+# Create glance user and assign to admin role (docs do not specific the user tenant, ansible module requires one)
+- keystone_user: user=glance password={{ GLANCE_PASS }} tenant=service
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
+
+- keystone_user: role=admin user=glance tenant=service
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
+
+# Create the glance service entity
+
+- name: check for glance service entity
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-get glance  2>&1"
+  register: check_glance_service
+  changed_when: ("No service" in check_glance_service.stdout)
+  failed_when: check_glance_service.rc != 0 and not ("No service" in check_glance_service.stdout)
+
+- name: create glance service entity
+  command: keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-create --name glance --type image --description "OpenStack Image Service"
+  when: check_glance_service.changed
+
+# Create the Image Service API endpoints
+
+- name: check for glance API endpoint
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-list  2>&1 | grep '9292'"
+  register: check_glance_endpoints
+  failed_when: check_glance_endpoints.rc != 0 and check_glance_endpoints.stdout != ""
+  changed_when: check_glance_endpoints.stdout == ""
+
+# Need the service entity ID when creating the API endpoint
+- name: get the glance service entity id
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-list | awk '/ image / {print $2}'"
+  register: glance_service_id
+  ignore_errors: True
+  when: check_glance_endpoints.changed
+
+- name: create API endpoints
+  shell: >
+    keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-create
+    --service-id {{ glance_service_id.stdout }}
+    --publicurl http://controller:9292
+    --internalurl http://controller:9292
+    --adminurl http://controller:9292
+    --region regionOne
+  when: check_glance_endpoints.changed
+
+# Install package
+- apt: name=glance state=present
+- apt: name=python-glanceclient state=present
+
+# Update configuration files
+- template: src=glance-api.conf.j2 dest=/etc/glance/glance-api.conf
+  register: glance_cfg
+
+- template: src=glance-registry.conf.j2 dest=/etc/glance/glance-registry.conf
+  register: glance_cfg
+
+- name: ensure glance sqlite database is deleted
+  action: file dest=/var/lib/glance/glance.sqlite state=absent
+
+- name: glance db_sync
+  command: /bin/sh -c "glance-manage db_sync" glance
+  when: glancedb.changed
+
+- name: restart glance services
+  service: name={{ item }} state=restarted
+  when: glance_cfg.changed or glancedb.changed
+  with_items:
+    - glance-registry
+    - glance-api

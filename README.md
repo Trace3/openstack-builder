@@ -12,7 +12,7 @@ Status
 
 - [x] Basic environment
 - [x] Identity Service
-- [ ] Image Service
+- [x] Image Service
 - [ ] Compute Service
 - [ ] Networking Component
 - [ ] Dashboard

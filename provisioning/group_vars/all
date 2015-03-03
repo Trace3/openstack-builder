@@ -28,5 +28,5 @@ TROVE_PASS: 12481eafe7341becfdb2
 
 os_admin_token: 12481eafe7341becfdb2
 
-# OpenStack endpointN
+# OpenStack endpoint
 os_endpoint: http://controller:35357/v2.0
