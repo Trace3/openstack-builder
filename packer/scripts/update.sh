@@ -1,5 +1,5 @@
-#!/bin/bash -eux
+#!/bin/bash
 
-sudo apt-get update
-sudo apt-get -y dist-upgrade
-sudo apt-get install -y open-vm-tools
+apt-get update
+apt-get -qy dist-upgrade
+apt-get install -qy open-vm-tools

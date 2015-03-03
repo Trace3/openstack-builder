@@ -1,15 +1,5 @@
 ---
 # Configure Nova
-# Install packages
-- apt: name={{ item }} state=present
-  with_items:
-    - nova-api
-    - nova-cert
-    - nova-conductor
-    - nova-consoleauth
-    - nova-novncproxy
-    - nova-scheduler
-    - python-novaclient
 
 - mysql_db: name=nova state=present
   register: nova_db
@@ -19,10 +9,6 @@
     - localhost
     - "%"
   register: mysql_login
-
-- name: nova db_sync
-  command: /bin/sh -c "nova-manage db sync" nova
-  when: nova_db.changed
 
 # Create nova user and assign to admin role (docs do not specify the user tenant, ansible module requires one)
 - keystone_user: user=nova password={{ NOVA_PASS }} tenant=service
@@ -68,16 +54,31 @@
     --region regionOne
   when: check_nova_endpoints.changed
 
+# Install packages
+- apt: name={{ item }} state=present
+  with_items:
+    - nova-api
+    - nova-cert
+    - nova-conductor
+    - nova-consoleauth
+    - nova-novncproxy
+    - nova-scheduler
+    - python-novaclient
+
 # Update configuration file
 - template: src=nova.conf.j2 dest=/etc/nova/nova.conf
   register: nova_cfg
+
+- name: nova db_sync
+  command: /bin/sh -c "nova-manage db sync" nova
+  when: nova_db.changed or nova_cfg.changed
 
 - name: ensure nova sqlite database is deleted
   file: dest=/var/lib/nova/nova.sqlite state=absent
 
 - name: restart nova services
   service: name={{ item }} state=restarted
-  when: nova_cfg.changed or nova_db.changed
+  when: nova_db.changed or nova_cfg.changed
   with_items:
     - nova-api
     - nova-cert

@@ -30,11 +30,17 @@
     "shutdown_command": "sudo shutdown -P now"
   }],
 
-  "provisioners": [{
-    "type": "shell",
-    "scripts": [
-      "scripts/update.sh",
-      "scripts/vagrant.sh"
-    ]
-  }]
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+      "scripts": [
+        "scripts/juno_repo.sh",
+        "scripts/update.sh",
+        "scripts/vagrant.sh"
+      ]
+    }
+  ],
+
+  "post-processors": ["vagrant"]
 }

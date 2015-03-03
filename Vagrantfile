@@ -12,7 +12,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider "vmware_fusion" do |v, override|
     #override.vm.box = "slowe/ubuntu-trusty-x64"
-    override.vm.box = "rbenigno/trusty64"
+    override.vm.box = "rbenigno/trusty64_juno"
   end
 
   # Disable synced folders for quicker vagrant up

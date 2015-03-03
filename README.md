@@ -22,3 +22,7 @@ Status
 - [ ] Telemetry module
 - [ ] Database service
 - [ ] Data processing service?
+
+TODO
+----
+ - [ ] Use IP address for external facing service endpoints (instead of "controller")

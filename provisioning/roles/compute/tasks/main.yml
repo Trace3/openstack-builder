@@ -11,7 +11,7 @@
   register: nova_cfg
 
 - name: restart nova services
-  service: name={{ item }} state=restarted
+  service: name=nova-compute state=restarted
   when: nova_cfg.changed
 
 # Remove default sqlite db
