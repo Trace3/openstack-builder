@@ -36,51 +36,52 @@
 
 # Create a admin tenant and user
 - keystone_user: tenant=admin tenant_description="Admin Tenant" 
-                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
 - keystone_user: user=admin tenant=admin password={{ ADMIN_PASS }}
-                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
 - keystone_user: role=admin user=admin tenant=admin
-                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
 
 # Create a service tenant
 - keystone_user: tenant=service tenant_description="Service Tenant" 
-                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
 
 # Create a demo tenant and user
 - keystone_user: tenant=demo tenant_description="Demo Tenant" 
-                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
 - keystone_user: user=demo tenant=demo password={{ DEMO_PASS }}
-                 endpoint={{ keystone_endpoint }} token={{ keystone_admin_token }}
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
 
 # Create service entity
 
 - name: check for keystone service entity
-  shell: "keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} service-get keystone  2>&1"
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-get keystone  2>&1"
   register: check_keystone_service
   changed_when: ("No service" in check_keystone_service.stdout)
   failed_when: check_keystone_service.rc != 0 and not ("No service" in check_keystone_service.stdout)
 
 - name: create keystone service entity
-  command: keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} service-create --name keystone --type identity --description "OpenStack Identity"
+  command: keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-create --name keystone --type identity --description "OpenStack Identity"
   when: check_keystone_service.changed
 
 # Create API endpoints
 
-- name: check for API endpoints
-  shell: "keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} endpoint-list  2>&1"
+- name: check for keystone API endpoint
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-list  2>&1 | grep '5000'"
   register: check_api_endpoints
+  failed_when: check_api_endpoints.rc == 1 and check_api_endpoints.stdout != ""
   changed_when: check_api_endpoints.stdout == ""
 
 # Need the service entity ID when creating the API endpoint
 - name: get service entity identity id
-  shell: "keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} service-list | awk '/ identity / {print $2}'"
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-list | awk '/ identity / {print $2}'"
   register: entity_id
   ignore_errors: True
   when: check_api_endpoints.changed
 
 - name: create API endpoints
   shell: >
-    keystone --os-endpoint {{ keystone_endpoint }} --os-token {{ keystone_admin_token }} endpoint-create
+    keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-create
     --service-id {{ entity_id.stdout }}
     --publicurl http://controller:5000/v2.0
     --internalurl http://controller:5000/v2.0

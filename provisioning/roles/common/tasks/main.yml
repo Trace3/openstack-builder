@@ -28,9 +28,9 @@
   tags: ntp
   notify: restart ntp
 
-- name: Start the ntp service
-  service: name=ntp state=started enabled=yes
-  tags: ntp
+# - name: Start the ntp service
+#   service: name=ntp state=started enabled=yes
+#   tags: ntp
 
 # Populate hosts file
 - name: "Build hosts file from ansible inventory"
