@@ -26,3 +26,6 @@ Status
 TODO
 ----
  - [ ] Use IP address for external facing service endpoints (instead of "controller")
+ - [ ] Common user account definitions and ssh keys should come from a vars file
+ - [ ] Neutron on compute node should edit the nova.conf instead of having gone back to edit the template with neutron settings
+- [ ] RabbitMQ should use a dedicated user account (guest pw setting is not currently idempotent)

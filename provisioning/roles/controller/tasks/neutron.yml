@@ -1,0 +1,94 @@
+---
+# Configure Neutron
+
+- mysql_db: name=neutron state=present
+  register: neutron_db
+
+- mysql_user: name=neutron host={{ item }} password={{ NEUTRON_DBPASS }} priv=neutron.*:ALL state=present
+  with_items:
+    - localhost
+    - "%"
+  register: mysql_login
+
+# Create neutron user and assign to admin role (docs do not specify the user tenant, ansible module requires one)
+- keystone_user: user=neutron password={{ NEUTRON_PASS }} tenant=service
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
+
+- keystone_user: role=admin user=neutron tenant=service
+                 endpoint={{ os_endpoint }} token={{ os_admin_token }}
+
+# Create the neutron service entity
+
+- name: check for neutron service entity
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-get neutron  2>&1"
+  register: check_neutron_service
+  changed_when: ("No service" in check_neutron_service.stdout)
+  failed_when: check_neutron_service.rc != 0 and not ("No service" in check_neutron_service.stdout)
+
+- name: create neutron service entity
+  command: keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-create --name neutron --type network --description "OpenStack Networking"
+  when: check_neutron_service.changed
+
+# Create the Compute Service API endpoints
+
+- name: check for neutron API endpoint
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-list  2>&1 | grep '9696'"
+  register: check_neutron_endpoints
+  failed_when: check_neutron_endpoints.rc != 0 and check_neutron_endpoints.stdout != ""
+  changed_when: check_neutron_endpoints.stdout == ""
+
+# Need the service entity ID when creating the API endpoint
+- name: get the neutron service entity id
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} service-list | awk '/ network / {print $2}'"
+  register: neutron_service_id
+  ignore_errors: True
+  when: check_neutron_endpoints.changed
+
+- name: create neutron API endpoints
+  shell: >
+    keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-create
+    --service-id {{ neutron_service_id.stdout }}
+    --publicurl http://controller:9696
+    --adminurl http://controller:9696
+    --internalurl http://controller:9696
+    --region regionOne
+  when: check_neutron_endpoints.changed
+
+# Install packages
+- apt: name={{ item }} state=present
+  with_items:
+    - neutron-server
+    - neutron-plugin-ml2
+    - python-neutronclient
+
+# Get the service tenant ID for the conf file
+- name: get the service tenant id
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} tenant-get service | awk '/ id / {print $2}'"
+  register: service_tenant_id
+
+# Update configuration file
+- template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf
+  register: neutron_cfg
+
+# Update configuration file
+- template: src=ml2_conf.ini.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini
+  register: ml2_cfg
+
+# Populate database
+- name: neutron db_sync
+  command:  >
+    /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf
+    --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade juno" neutron
+  when: neutron_db.changed or neutron_cfg.changed or ml2_cfg.changed
+
+- name: ensure neutron sqlite database is deleted
+  file: dest=/var/lib/neutron/neutron.sqlite state=absent
+
+- name: restart neutron services
+  service: name={{ item }} state=restarted
+  when: neutron_db.changed or neutron_cfg.changed
+  with_items:
+    - nova-api
+    - nova-scheduler
+    - nova-conductor
+    - neutron-server
