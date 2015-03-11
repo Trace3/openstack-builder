@@ -44,11 +44,13 @@ neutron router-interface-add demo-router demo-subnet
 
 neutron router-gateway-set demo-router ext-net
 
-ping 10.200.200.101
+ping -c 10 10.200.200.101
 
 # Launch an instance
 
-ssh-keygen -f ~/.ssh/id_rsa
+if [ ! -f ~/.ssh/id_rsa ]; then
+    ssh-keygen -f ~/.ssh/id_rsa
+fi
 
 nova keypair-add --pub-key ~/.ssh/id_rsa.pub demo-key
 
@@ -73,5 +75,7 @@ neutron floatingip-create ext-net
 neutron floatingip-list
 
 nova floating-ip-associate demo-instance1 10.200.200.102
+
+nova get-vnc-console demo-instance1 novnc 
 
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no cirros@10.200.200.102
