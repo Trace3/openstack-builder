@@ -40,6 +40,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       v.vmx["memsize"] = "512"
     end
     node.vm.network "private_network", ip: "10.199.199.21"
+    node.vm.network "private_network", ip: "10.200.200.21", auto_config: false
   end
 
   config.vm.define "compute1" do |node|

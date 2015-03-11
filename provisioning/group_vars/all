@@ -26,6 +26,8 @@ CEILOMETER_PASS: 12481eafe7341becfdb2
 TROVE_DBPASS: 12481eafe7341becfdb2
 TROVE_PASS: 12481eafe7341becfdb2
 
+METADATA_SECRET: 12481eafe7341becfdb2
+
 os_admin_token: 12481eafe7341becfdb2
 
 # OpenStack endpoint

@@ -2,10 +2,10 @@
 # Install and configure database
 
 - name: Install database 
-  apt: name=mariadb-server state=present
+  apt: name=mariadb-server state=present update_cache=yes cache_valid_time=86400
 
 - name: Install python library for mysql 
-  apt: name=python-mysqldb state=present
+  apt: name=python-mysqldb state=present update_cache=yes cache_valid_time=86400
 
 - name: Configure mysql
   template: src=my.cnf.j2 dest=/etc/mysql/my.cnf

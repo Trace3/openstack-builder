@@ -53,8 +53,8 @@
   when: check_glance_endpoints.changed
 
 # Install package
-- apt: name=glance state=present
-- apt: name=python-glanceclient state=present
+- apt: name=glance state=present update_cache=yes cache_valid_time=86400
+- apt: name=python-glanceclient state=present update_cache=yes cache_valid_time=86400
 
 # Update configuration files
 - template: src=glance-api.conf.j2 dest=/etc/glance/glance-api.conf

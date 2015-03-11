@@ -17,3 +17,9 @@
   sudo: true
   roles:
   - compute
+
+# Configure OpenStack network nodes
+- hosts: network
+  sudo: true
+  roles:
+  - network

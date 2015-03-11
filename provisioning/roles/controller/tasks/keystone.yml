@@ -1,7 +1,7 @@
 ---
 # Configure Keystone
-- apt: name=keystone state=present
-- apt: name=python-keystoneclient state=present
+- apt: name=keystone state=present update_cache=yes cache_valid_time=86400
+- apt: name=python-keystoneclient state=present update_cache=yes cache_valid_time=86400
 
 - name: ensure sqlite keystone database is deleted
   action: file dest=/var/lib/keystone/keystone.db state=absent

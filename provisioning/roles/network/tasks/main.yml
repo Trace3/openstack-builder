@@ -1,0 +1,47 @@
+# Set kernel params
+- sysctl: name=net.ipv4.ip_forward value=1 state=present reload=yes
+- sysctl: name=net.ipv4.conf.all.rp_filter value=0 state=present reload=yes
+- sysctl: name=net.ipv4.conf.default.rp_filter value=0 state=present reload=yes
+
+# Install packages
+- apt: name={{ item }} state=present update_cache=yes cache_valid_time=86400
+  with_items:
+    - neutron-plugin-ml2
+    - neutron-plugin-openvswitch-agent
+    - neutron-l3-agent
+    - neutron-dhcp-agent
+
+- name: ensure neutron sqlite database is deleted
+  file: dest=/var/lib/neutron/neutron.sqlite state=absent
+
+# Update configuration file
+- template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf
+  register: neutron_cfg
+
+# Update configuration file
+- template: src=ml2_conf.ini.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini
+  register: ml2_cfg
+
+# Update configuration file
+- template: src=l3_agent.ini.j2 dest=/etc/neutron/l3_agent.ini
+  register: l3_agent_cfg
+
+# Update configuration file
+- template: src=dhcp_agent.ini.j2 dest=/etc/neutron/dhcp_agent.ini
+  register: dhcp_agent_cfg
+
+- name: "Set MTU via dhcp (prefer jumbo frames on tunnel interface for prod environments)"
+  copy: dest=/etc/neutron/dnsmasq-neutron.conf content='dhcp-option-force=26,1454\n' mode=644 owner=root group=neutron
+
+# Update configuration file
+- template: src=metadata_agent.ini.j2 dest=/etc/neutron/metadata_agent.ini
+  register: metadata_agent_cfg
+
+# Create a bridge named br-ex
+- openvswitch_bridge: bridge=br-ex state=present
+  register: ovs_br_ex
+
+# Add external interface to bridge
+- name: OVS External Port
+  command: ovs-vsctl add-port br-ex eth2
+  when: ovs_br_ex.changed
