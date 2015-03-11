@@ -29,7 +29,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node.vm.hostname = "controller"
     node.vm.provider "vmware_fusion" do |v|
       v.vmx["numvcpus"] = "1"
-      v.vmx["memsize"] = "1024"
+      v.vmx["memsize"] = "2048"
     end
   end
 
@@ -47,8 +47,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "compute1" do |node|
     node.vm.hostname = "compute1"
     node.vm.provider "vmware_fusion" do |v|
-      v.vmx["numvcpus"] = "1"
-      v.vmx["memsize"] = "1024"
+      v.vmx["numvcpus"] = "2"
+      v.vmx["memsize"] = "2048"
       v.vmx["vhv.enable"] = "TRUE"
     end
     node.vm.network "private_network", ip: "10.199.199.31"

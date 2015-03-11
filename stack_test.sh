@@ -8,6 +8,9 @@ export OS_AUTH_URL=http://controller:35357/v2.0
 glance image-create --name "cirros-0.3.3-x86_64" --location http://cdn.download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img \
   --disk-format qcow2 --container-format bare --is-public True --progress
 
+glance image-create --name "ubuntu_trusty64" --location http://uec-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img \
+   --disk-format qcow2 --container-format bare --is-public True --progress
+
 nova service-list
 
 nova image-list
@@ -16,7 +19,7 @@ neutron ext-list
 
 neutron agent-list
 
-neutron net-create ext-net --router:external True \
+neutron net-create ext-net --router:external \
    --provider:physical_network external --provider:network_type flat
 
 neutron subnet-create ext-net --name ext-subnet \

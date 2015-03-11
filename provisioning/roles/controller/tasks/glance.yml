@@ -46,9 +46,9 @@
   shell: >
     keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-create
     --service-id {{ glance_service_id.stdout }}
-    --publicurl http://controller:9292
+    --publicurl http://{{ ansible_eth0.ipv4.address }}:9292
     --internalurl http://controller:9292
-    --adminurl http://controller:9292
+    --adminurl http://{{ ansible_eth0.ipv4.address }}:9292
     --region regionOne
   when: check_glance_endpoints.changed
 

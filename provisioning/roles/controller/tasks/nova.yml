@@ -48,9 +48,9 @@
   shell: >
     keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-create
     --service-id {{ nova_service_id.stdout }}
-    --publicurl http://controller:8774/v2/%\(tenant_id\)s
+    --publicurl http://{{ ansible_eth0.ipv4.address }}:8774/v2/%\(tenant_id\)s
     --internalurl http://controller:8774/v2/%\(tenant_id\)s
-    --adminurl http://controller:8774/v2/%\(tenant_id\)s
+    --adminurl http://{{ ansible_eth0.ipv4.address }}:8774/v2/%\(tenant_id\)s
     --region regionOne
   when: check_nova_endpoints.changed
 

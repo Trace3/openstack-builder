@@ -48,8 +48,8 @@
   shell: >
     keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} endpoint-create
     --service-id {{ neutron_service_id.stdout }}
-    --publicurl http://controller:9696
-    --adminurl http://controller:9696
+    --publicurl http://{{ ansible_eth0.ipv4.address }}:9696
+    --adminurl http://{{ ansible_eth0.ipv4.address }}:9696
     --internalurl http://controller:9696
     --region regionOne
   when: check_neutron_endpoints.changed

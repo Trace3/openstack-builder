@@ -17,10 +17,10 @@ rabbit_password = {{ RABBIT_PASS }}
 
 auth_strategy = keystone
 
-my_ip = {{ hostvars['controller'].ansible_default_ipv4.address }}
+my_ip = {{ ansible_eth0.ipv4.address }}
 
-vncserver_listen = {{ hostvars['controller'].ansible_default_ipv4.address }}
-vncserver_proxyclient_address = {{ hostvars['controller'].ansible_default_ipv4.address }}
+vncserver_listen = {{ ansible_eth0.ipv4.address }}
+vncserver_proxyclient_address = {{ ansible_eth0.ipv4.address }}
 
 verbose = True
 
@@ -33,8 +33,8 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 connection = mysql://nova:{{ NOVA_DBPASS }}@controller/nova
 
 [keystone_authtoken]
-auth_uri = http://controller:5000/v2.0
-identity_uri = http://controller:35357
+auth_uri = http://{{ ansible_eth0.ipv4.address }}:5000/v2.0
+identity_uri = http://{{ ansible_eth0.ipv4.address }}:35357
 admin_tenant_name = service
 admin_user = nova
 admin_password = {{ NOVA_PASS }}
@@ -43,9 +43,9 @@ admin_password = {{ NOVA_PASS }}
 host = controller
 
 [neutron]
-url = http://controller:9696
+url = http://{{ ansible_eth0.ipv4.address }}:9696
 auth_strategy = keystone
-admin_auth_url = http://controller:35357/v2.0
+admin_auth_url = http://{{ ansible_eth0.ipv4.address }}:35357/v2.0
 admin_tenant_name = service
 admin_username = neutron
 admin_password = {{ NEUTRON_PASS }}

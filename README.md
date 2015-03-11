@@ -30,7 +30,7 @@ Status
 
 TODO
 ----
-- [ ] Use IP address for external facing service endpoints (instead of "controller")
+- [x] Use IP address for external facing service endpoints (instead of "controller")
 - [ ] Auto create external and demo tenant networks
 - [ ] Add default images into glance
 - [ ] Common user account definitions and ssh keys should come from a vars file
