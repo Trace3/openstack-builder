@@ -20,7 +20,7 @@
 
 # Install and Configure NTP
 - name: Install ntp 
-  apt: name=ntp state=present
+  apt: name=ntp state=present update_cache=yes cache_valid_time=86400
   tags: ntp
 
 - name: Configure ntp file

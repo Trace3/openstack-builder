@@ -31,7 +31,7 @@
   register: dhcp_agent_cfg
 
 - name: "Set MTU via dhcp (prefer jumbo frames on tunnel interface for prod environments)"
-  copy: dest=/etc/neutron/dnsmasq-neutron.conf content='dhcp-option-force=26,1454\n' mode=644 owner=root group=neutron
+  copy: dest=/etc/neutron/dnsmasq-neutron.conf content=dhcp-option-force=26,1454\n mode=644 owner=root group=neutron
 
 # Update configuration file
 - template: src=metadata_agent.ini.j2 dest=/etc/neutron/metadata_agent.ini
@@ -45,3 +45,12 @@
 - name: OVS External Port
   command: ovs-vsctl add-port br-ex eth2
   when: ovs_br_ex.changed
+
+- name: restart neutron services
+  service: name={{ item }} state=restarted
+  when: neutron_cfg.changed or ml2_cfg.changed or l3_agent_cfg.changed or dhcp_agent_cfg.changed or metadata_agent_cfg.changed
+  with_items:
+    - neutron-plugin-openvswitch-agent
+    - neutron-l3-agent
+    - neutron-dhcp-agent
+    - neutron-metadata-agent
