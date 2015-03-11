@@ -50,6 +50,7 @@
   service: name={{ item }} state=restarted
   when: neutron_cfg.changed or ml2_cfg.changed or l3_agent_cfg.changed or dhcp_agent_cfg.changed or metadata_agent_cfg.changed
   with_items:
+    - openvswitch-switch
     - neutron-plugin-openvswitch-agent
     - neutron-l3-agent
     - neutron-dhcp-agent

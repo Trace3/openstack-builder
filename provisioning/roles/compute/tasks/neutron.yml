@@ -1,0 +1,27 @@
+# Set kernel params
+- sysctl: name=net.ipv4.conf.all.rp_filter value=0 state=present reload=yes
+- sysctl: name=net.ipv4.conf.default.rp_filter value=0 state=present reload=yes
+
+# Install packages
+- apt: name={{ item }} state=present update_cache=yes cache_valid_time=86400
+  with_items:
+    - neutron-plugin-ml2
+    - neutron-plugin-openvswitch-agent
+
+- name: ensure neutron sqlite database is deleted
+  file: dest=/var/lib/neutron/neutron.sqlite state=absent
+
+# Update configuration file
+- template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf
+  register: neutron_cfg
+
+# Update configuration file
+- template: src=ml2_conf.ini.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini
+  register: ml2_cfg
+
+- name: restart neutron services
+  service: name={{ item }} state=restarted
+  when: neutron_cfg.changed or ml2_cfg.changed
+  with_items:
+    - openvswitch-switch
+    - neutron-plugin-openvswitch-agent

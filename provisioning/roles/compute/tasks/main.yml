@@ -17,3 +17,6 @@
 # Remove default sqlite db
 - name: ensure nova sqlite database is deleted
   file: dest=/var/lib/nova/nova.sqlite state=absent
+
+# Install/config Neutron networking
+- include: neutron.yml

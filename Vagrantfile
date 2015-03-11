@@ -41,6 +41,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
     node.vm.network "private_network", ip: "10.199.199.21"
     node.vm.network "private_network", ip: "10.200.200.21", auto_config: false
+    node.vm.provision "shell", inline: "ifconfig eth2 up"
   end
 
   config.vm.define "compute1" do |node|

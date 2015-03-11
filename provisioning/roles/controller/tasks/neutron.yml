@@ -63,7 +63,7 @@
 
 # Get the service tenant ID for the conf file
 - name: get the service tenant id
-  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} tenant-get service | awk '/ id / {print $2}'"
+  shell: "keystone --os-endpoint {{ os_endpoint }} --os-token {{ os_admin_token }} tenant-get service | awk '/ id / {print $4}'"
   register: service_tenant_id
 
 # Update configuration file
