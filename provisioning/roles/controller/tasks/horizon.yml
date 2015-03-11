@@ -1,0 +1,23 @@
+---
+# Install and configure Horizon
+
+- apt: name={{ item }} state=present update_cache=yes cache_valid_time=86400
+  with_items:
+  - openstack-dashboard
+  - apache2
+  - libapache2-mod-wsgi
+  - memcached
+  - python-memcache
+
+- apt: name=openstack-dashboard-ubuntu-theme state=absent
+
+# Update configuration file
+- template: src=local_settings.py.j2 dest=/etc/openstack-dashboard/local_settings.py
+  register: dashboard_cfg
+
+- name: restart dashboard services
+  service: name={{ item }} state=restarted
+  when: dashboard_cfg.changed
+  with_items:
+    - apache2
+    - memcached

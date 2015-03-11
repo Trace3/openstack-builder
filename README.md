@@ -10,12 +10,17 @@ Go ahead and delete this repo if we're running out...
 Status
 ------
 
+**Core**
+
 - [x] Basic environment
 - [x] Identity Service
 - [x] Image Service
 - [x] Compute Service
 - [x] Networking Component
-- [ ] Dashboard
+- [x] Dashboard
+
+**Optional**
+
 - [ ] Block Storage
 - [ ] Object Storage
 - [ ] Orchestration Module
@@ -26,6 +31,8 @@ Status
 TODO
 ----
 - [ ] Use IP address for external facing service endpoints (instead of "controller")
+- [ ] Auto create external and demo tenant networks
+- [ ] Add default images into glance
 - [ ] Common user account definitions and ssh keys should come from a vars file
 - [ ] Neutron on compute node should edit the nova.conf instead of having gone back to edit the template with neutron settings
 - [ ] RabbitMQ should use a dedicated user account (guest pw setting is not currently idempotent)

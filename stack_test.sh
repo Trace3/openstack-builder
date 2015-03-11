@@ -70,3 +70,5 @@ neutron floatingip-create ext-net
 neutron floatingip-list
 
 nova floating-ip-associate demo-instance1 10.200.200.102
+
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no cirros@10.200.200.102
