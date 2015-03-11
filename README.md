@@ -14,7 +14,7 @@ Status
 - [x] Identity Service
 - [x] Image Service
 - [x] Compute Service
-- [ ] Networking Component
+- [x] Networking Component
 - [ ] Dashboard
 - [ ] Block Storage
 - [ ] Object Storage
