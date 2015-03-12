@@ -1,0 +1,8 @@
+---
+auth_url: "{{ lookup('env','OS_AUTH_URL') }}"
+login_username: "{{ lookup('env','OS_USERNAME') }}"
+login_password: "{{ lookup('env','OS_PASSWORD') }}"
+login_tenant_name: "{{ lookup('env','OS_TENANT_NAME') }}"
+image_id: c496879e-a048-4780-ab7a-59c6ece6dbce
+key_name: ryanb_dev
+network_name: demo-net

@@ -1,0 +1,50 @@
+- name: launch a nova instance
+  hosts: localhost
+  vars_files:
+    - "vars/main.yml"
+  tasks:
+  - name: launch vm1
+    nova_compute:
+      state: present
+      auth_url: "{{ auth_url }}"
+      login_username: "{{ login_username }}"
+      login_password: "{{ login_password }}"
+      login_tenant_name: "{{ login_tenant_name }}"
+      name: vm1
+      image_id: "{{ image_id }}"
+      key_name: "{{ key_name }}"
+      wait_for: 200
+      flavor_id: 2
+      security_groups: default
+      #floating_ip_pools: ext-subnet
+      #auto_floating_ip: yes
+
+  - name: launch vm2
+    nova_compute:
+      state: present
+      auth_url: "{{ auth_url }}"
+      login_username: "{{ login_username }}"
+      login_password: "{{ login_password }}"
+      login_tenant_name: "{{ login_tenant_name }}"
+      name: vm2
+      image_id: "{{ image_id }}"
+      key_name: "{{ key_name }}"
+      wait_for: 200
+      flavor_id: 2
+      security_groups: default
+      # auto_floating_ip: yes
+
+  - name: launch vm3
+    nova_compute:
+      state: present
+      auth_url: "{{ auth_url }}"
+      login_username: "{{ login_username }}"
+      login_password: "{{ login_password }}"
+      login_tenant_name: "{{ login_tenant_name }}"
+      name: vm3
+      image_id: "{{ image_id }}"
+      key_name: "{{ key_name }}"
+      wait_for: 200
+      flavor_id: 2
+      security_groups: default
+      # auto_floating_ip: yes

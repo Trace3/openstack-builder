@@ -1,0 +1,19 @@
+# Trace3 LA Lab
+
+controller ansible_ssh_host=172.16.18.61 ansible_ssh_port=22 ansible_ssh_user=rbenigno
+network ansible_ssh_host=172.16.18.62 ansible_ssh_port=22 ansible_ssh_user=rbenigno
+compute1 ansible_ssh_host=172.16.18.63 ansible_ssh_port=22 ansible_ssh_user=rbenigno
+
+[controller]
+controller
+
+[network]
+network
+
+[compute]
+compute1
+
+[all_groups:children]
+controller
+network
+compute
