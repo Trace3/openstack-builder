@@ -1,5 +1,7 @@
 {
   "variables": {
+    "PACKER_OS_FLAVOUR": "ubuntu",
+    "PACKER_BOX_NAME": "rbenigno/trusty64_juno",
     "iso_folder": "/Users/rbenigno/Dropbox/Software/ISO"
   },
 
@@ -14,6 +16,7 @@
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
     "http_directory": "http_files",
+    "tools_upload_flavor": "linux",
     "headless": true,
     "boot_command": [
       "<esc> ",
@@ -37,6 +40,7 @@
       "scripts": [
         "scripts/juno_repo.sh",
         "scripts/update.sh",
+        "scripts/vmtools.sh",
         "scripts/vagrant.sh"
       ]
     }
