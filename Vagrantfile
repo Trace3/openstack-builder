@@ -8,15 +8,15 @@ VAGRANTFILE_API_VERSION = "2"
 # Create and configure the VM(s)
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.box ="ubuntu/trusty64"
+  config.vm.box ="boxcutter/ubuntu1404"
 
   config.vm.provider "vmware_fusion" do |v, override|
-    #override.vm.box = "slowe/ubuntu-trusty-x64"
+    #override.vm.box = "boxcutter/ubuntu1404"
     override.vm.box = "rbenigno/trusty64_juno"
   end
 
   # Disable synced folders for quicker vagrant up
-  #config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.synced_folder ".", "/vagrant", disabled: true
 
   # Populate hosts file
   config.hostmanager.enabled = true

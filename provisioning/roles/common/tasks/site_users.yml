@@ -1,0 +1,9 @@
+# Create user accounts
+- name: "Add user accounts"
+  user: name=rbenigno shell=/bin/bash state=present
+
+- name: "Add authorized_key for user"
+  authorized_key: user=rbenigno key="{{ lookup('file', '~/.ssh/id_rsa_dev.pub') }}"
+
+- name: "Grant sudo rights to users"
+  copy: dest=/etc/sudoers.d/rbenigno content='rbenigno ALL=(ALL) NOPASSWD:ALL\n' mode=440 validate='visudo -cf %s'

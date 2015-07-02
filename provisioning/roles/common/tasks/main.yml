@@ -1,6 +1,9 @@
 ---
 # This role contains common plays that will run on all nodes.
 
+# Create common users w/ ssh keys
+#- include: site_users.yml
+
 # Include OpenStack repo, then update/upgrade
 - name: "Add OpenStack Rep"
   copy: dest=/etc/apt/sources.list.d/cloudarchive-juno.list content='deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main\n'
@@ -37,13 +40,3 @@
   lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" state=present
   when: hostvars[item].ansible_default_ipv4.address is defined
   with_items: groups['all']
-
-# Create user accounts
-- name: "Add user accounts"
-  user: name=rbenigno shell=/bin/bash state=present
-
-- name: "Add authorized_key for users"
-  authorized_key: user=rbenigno key="{{ lookup('file', '~/.ssh/id_rsa_dev.pub') }}"
-
-- name: "Grant sudo rights to users"
-  copy: dest=/etc/sudoers.d/rbenigno content='rbenigno ALL=(ALL) NOPASSWD:ALL\n' mode=440 validate='visudo -cf %s'
