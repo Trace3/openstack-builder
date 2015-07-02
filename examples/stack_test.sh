@@ -11,13 +11,17 @@ export OS_USERNAME=admin
 export OS_PASSWORD=labstack
 export OS_AUTH_URL=http://$CONTROLLER:35357/v2.0
 
-curl http://cdn.download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img | \
+curl http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img | \
  glance image-create --name "cirros-0.3.3-x86_64" --disk-format qcow2 --container-format bare \
  --is-public True
 
 curl https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img | \
  glance image-create --name "ubuntu_trusty64" --disk-format qcow2 --container-format bare \
  --is-public True --min-disk 2
+
+#curl https://cloud-images.ubuntu.com/precise/current/precise-server-cloudimg-amd64-disk1.img | \
+# glance image-create --name "ubuntu_precise64" --disk-format qcow2 --container-format bare \
+# --is-public True --min-disk 2
 
 # Need to manually download the KVM image from http://www.cloudbase.it/ws2012r2/ (due to EULA)
 #gunzip -cd  windows_server_2012_r2_standard_eval_hyperv_20131031.vhd.gz | \
@@ -57,7 +61,7 @@ neutron router-interface-add demo-router demo-subnet
 
 neutron router-gateway-set demo-router ext-net
 
-ping -c 10 10.200.200.101
+ping -c 5 10.200.200.101
 
 # Launch an instance
 
