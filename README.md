@@ -59,6 +59,7 @@ Prerequisites
    	- Install packages - `pip install -r requirements.txt`
 2. Vagrant
    - VMware Fusion (might work with VirtualBox, not sure about nested VMs for the compute node)
+   - Virtual networks that match the Vagrantfile (the 10.200.200.x network needs external NAT)
    - Vagrant Plugin for Fusion
    - vagrant-hostmanager plugin (`vagrant plugin install vagrant-hostmanager`)
 
